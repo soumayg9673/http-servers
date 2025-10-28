@@ -12,7 +12,13 @@ func RouteHealthZ(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) RouteMetrics(w http.ResponseWriter, r *http.Request) {
-	w.Write(fmt.Appendf(nil, "Hits: %v", cfg.fileserverHits.Load()))
+	w.Header().Set("Content-Type", "text/html")
+	fmt.Fprintf(w, `<html>
+	<body>
+		<h1>Welcome, Chirpy Admin</h1>
+		<p>Chirpy has been visited %d times!</p>
+	</body>
+	</html>`, cfg.fileserverHits.Load())
 	w.WriteHeader(http.StatusOK)
 }
 
