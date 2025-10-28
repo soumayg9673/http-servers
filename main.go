@@ -16,13 +16,19 @@ func main() {
 	// file server
 	mux.Handle("/app/", cfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 
+	// admin server
+	admin := http.NewServeMux()
+	mux.Handle("/admin/", http.StripPrefix("/admin", admin))
+
+	admin.HandleFunc("GET /healthz", RouteHealthZ)
+	admin.HandleFunc("GET /metrics", cfg.RouteMetrics)
+	admin.HandleFunc("POST /reset", cfg.RouteMetricsReset)
+
 	// api server
 	api := http.NewServeMux()
-	mux.Handle("/admin/", http.StripPrefix("/admin", api))
+	mux.Handle("/api/", http.StripPrefix("/api", api))
 
-	api.HandleFunc("GET /healthz", RouteHealthZ)
-	api.HandleFunc("GET /metrics", cfg.RouteMetrics)
-	api.HandleFunc("POST /reset", cfg.RouteMetricsReset)
+	api.HandleFunc("POST /validate_chirp", RouteValidateChirp)
 
 	server := &http.Server{
 		Addr:    ":8080",
